@@ -1,0 +1,50 @@
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles for roadmap nodes */
+.roadmap-node {
+  @apply rounded-md p-3 shadow-md transition-all duration-200;
+}
+
+.roadmap-node-main {
+  @apply bg-node-main border-2 border-node-border font-bold;
+}
+
+.roadmap-node-sub {
+  @apply bg-node-sub border border-node-border;
+}
+
+.roadmap-node-leaf {
+  @apply bg-node-leaf border border-node-border;
+}
+
+.roadmap-node-completed {
+  @apply border-2 border-green-500;
+}
+
+.roadmap-node:hover {
+  @apply shadow-lg transform scale-105;
+}
+
+.roadmap-connection {
+  @apply stroke-gray-400 stroke-2;
+}
+
+.roadmap-connection-main {
+  @apply stroke-blue-500 stroke-[3px];
+}
+
+/* Progress indicator styles */
+.progress-indicator {
+  @apply h-2 rounded-full bg-gray-200 overflow-hidden;
+}
+
+.progress-bar {
+  @apply h-full bg-green-500 transition-all duration-500;
+}
