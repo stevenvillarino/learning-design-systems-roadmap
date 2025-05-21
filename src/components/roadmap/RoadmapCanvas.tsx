@@ -21,9 +21,18 @@ const CustomNode = ({ data }: { data: any }) => {
   }`;
 
   return (
-    <div className={nodeClasses} onClick={data.onClick}>
-      <div className="text-center">{data.label}</div>
-    </div>
+    <button
+      className={nodeClasses + ' cursor-pointer w-full h-full flex flex-col items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400'}
+      onClick={data.onClick}
+      title={data.label}
+      tabIndex={0}
+      style={{ minWidth: 120, minHeight: 48 }}
+    >
+      <span className="font-semibold text-base mb-1 text-center whitespace-pre-line">{data.label}</span>
+      {data.completed && (
+        <span className="text-green-600 text-xs mt-1">✓ Completed</span>
+      )}
+    </button>
   );
 };
 

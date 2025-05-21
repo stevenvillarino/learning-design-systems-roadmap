@@ -1,35 +1,30 @@
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Custom styles for roadmap nodes */
 .roadmap-node {
-  @apply rounded-md p-3 shadow-md transition-all duration-200;
+  @apply rounded-lg p-4 shadow-md transition-all duration-200 border-2 border-transparent bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400;
 }
 
 .roadmap-node-main {
-  @apply bg-node-main border-2 border-node-border font-bold;
+  @apply bg-blue-100 border-blue-400 text-blue-900;
 }
 
 .roadmap-node-sub {
-  @apply bg-node-sub border border-node-border;
+  @apply bg-yellow-100 border-yellow-400 text-yellow-900;
 }
 
 .roadmap-node-leaf {
-  @apply bg-node-leaf border border-node-border;
+  @apply bg-green-100 border-green-400 text-green-900;
 }
 
 .roadmap-node-completed {
-  @apply border-2 border-green-500;
+  @apply border-green-500 bg-green-50;
 }
 
-.roadmap-node:hover {
-  @apply shadow-lg transform scale-105;
+.roadmap-node:hover, .roadmap-node:focus {
+  @apply shadow-lg scale-105 z-10;
 }
 
 .roadmap-connection {
