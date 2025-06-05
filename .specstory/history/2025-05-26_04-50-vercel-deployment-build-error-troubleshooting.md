@@ -332,3 +332,391 @@ _**Assistant**_
 
 ---
 
+I see the issue! Looking at the deployment log, Vercel is still building from an old commit (`a3893b7`) instead of the latest commit that includes our PostCSS fix. The deployment log shows:
+
+```
+Cloning github.com/stevenvillarino/learning-design-systems-roadmap (Branch: master, Commit: a3893b7)
+```
+
+But we pushed our changes to commit `018f352`. Let me check the current status:
+
+---
+
+```bash
+git log --oneline -5
+```
+
+```
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap % git log --oneline -5
+018f352 (HEAD -> master, origin/master, origin/HEAD) fix: Update PostCSS configuration to use the correct Ta
+ilwind CSS plugin
+a3893b7 Merge pull request #4 from stevenvillarino/dependabot/npm_and_yarn/tailwindcss-4.1.7
+54f0edf (origin/dependabot/npm_and_yarn/tailwindcss-4.1.7) build(deps): Bump tailwindcss from 3.4.17 to 4.1.
+7
+2fe056a feat: Update package dependencies and refactor roadmap components
+cfddcd9 feat: Enhance project structure and usability with updated styles, improved roadmap interaction, and
+ comprehensive README
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap %
+```
+
+---
+
+Good! I can see that our fix is in commit `018f352` and it's properly pushed to `origin/master`. However, Vercel seems to be building from the old commit. This can happen due to caching or deployment trigger issues. Let me verify that our PostCSS config change is definitely in place:
+
+---
+
+Read file: postcss.config.js
+
+---
+
+Perfect! Our fix is definitely in place. The issue is that Vercel is not picking up the latest commit. Let's force a new deployment by either:
+
+1. Making a small change and pushing again, or 
+2. Checking if there's a deployment configuration issue
+
+Let me first check if there are any Vercel-specific configuration files that might be causing this:
+
+---
+
+<details>
+            <summary>Searched codebase "vercel.json" • **0** results</summary>
+        
+No results found
+</details>
+
+---
+
+<details>
+            <summary>Listed current directory • **22** results</summary>
+        
+| Name |
+|-------|
+| 📁 `.git` |
+| 📄 `postcss.config.js` |
+| 📁 `.specstory` |
+| 📄 `package.json` |
+| 📄 `package-lock.json` |
+| 📁 `.next` |
+| 📁 `node_modules` |
+| 📁 `src` |
+| 📁 `.github` |
+| 📄 `.cursorindexingignore` |
+| 📄 `.gitignore` |
+| 📄 `README.md` |
+| 📄 `validation.js` |
+| 📄 `tailwind.config.js` |
+| 📁 `tailwindcss` |
+| 📄 `tech-stack.md` |
+| 📄 `todo.md` |
+| 📄 `tsconfig.json` |
+| 📄 `architecture.md` |
+| 📄 `next-env.d.ts` |
+| 📄 `project-summary.md` |
+| 📁 `history` |
+
+</details>
+
+---
+
+I don't see a `vercel.json` file. The issue is likely that Vercel cached the old deployment or there's a timing issue with the webhook trigger. Let's force a new deployment by making a small change that will definitely trigger a rebuild. I'll add a comment to the PostCSS config to force a new commit:
+
+---
+
+```diff
++ // PostCSS configuration for Tailwind CSS v4+
+  module.exports = {
+    plugins: {
+```
+
+---
+
+Now let's commit and push this change to force Vercel to deploy the latest version:
+
+---
+
+```bash
+git add postcss.config.js && git commit -m "docs: Add comment to PostCSS config to force deployment with Tailwind CSS v4 fix"
+```
+
+```
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap % git add postcss.config.js && git com
+mit -m "docs: Add comment to PostCSS config to force deployment with Taigit add postcss.config.js && git com
+mit -m "docs: Add comment to PostCSS config to force deployment with Tailwind CSS v4 fix"
+[master 3f43be5] docs: Add comment to PostCSS config to force deployment with Tailwind CSS v4 fix
+ 1 file changed, 1 insertion(+)
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap %
+```
+
+---
+
+```bash
+git push origin master
+```
+
+```
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap % git push origin master
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 11 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 426 bytes | 426.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/stevenvillarino/learning-design-systems-roadmap.git
+   018f352..3f43be5  master -> master
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap %
+```
+
+---
+
+Perfect! I've successfully pushed a new commit (`3f43be5`) that includes our PostCSS configuration fix. Here's what I did to resolve the deployment issue:
+
+## Problem Analysis
+The issue was that Vercel was still building from an old commit (`a3893b7`) instead of the latest commit that contained our PostCSS configuration fix. This can happen due to:
+- Webhook timing issues
+- Deployment caching
+- Branch synchronization delays
+
+## Solution Applied
+1. ✅ **Verified the fix was in place** - Our PostCSS config correctly uses `@tailwindcss/postcss` 
+2. ✅ **Added a descriptive comment** - This forces a new commit and ensures the fix is documented
+3. ✅ **Created new commit** - `3f43be5` now contains the complete fix with documentation
+4. ✅ **Pushed to master** - This should trigger a fresh Vercel deployment
+
+## What Should Happen Now
+Vercel should automatically trigger a new deployment from the latest commit (`3f43be5`) which includes:
+- The correct PostCSS configuration using `@tailwindcss/postcss`
+- Proper documentation explaining the Tailwind CSS v4+ compatibility
+
+The deployment should now succeed since we've resolved the PostCSS plugin configuration issue that was causing the build to fail.
+
+Monitor your Vercel dashboard for the new deployment - it should build successfully this time!
+
+---
+
+_**User**_
+
+another error "[15:44:19.337] Running build in Washington, D.C., USA (East) – iad1
+[15:44:19.338] Build machine configuration: 2 cores, 8 GB
+[15:44:19.350] Cloning github.com/stevenvillarino/learning-design-systems-roadmap (Branch: master, Commit: a3893b7)
+[15:44:19.389] Skipping build cache, deployment was triggered without cache.
+[15:44:19.669] Cloning completed: 319.000ms
+[15:44:19.995] Running "vercel build"
+[15:44:20.435] Vercel CLI 42.2.0
+[15:44:20.714] Installing dependencies...
+[15:44:23.342] npm warn deprecated lodash.template@4.5.0: This package is deprecated. Use https://socket.dev/npm/package/eta instead.
+[15:44:23.995] npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[15:44:30.740] 
+[15:44:30.741] added 246 packages in 10s
+[15:44:30.742] 
+[15:44:30.742] 57 packages are looking for funding
+[15:44:30.742]   run `npm fund` for details
+[15:44:30.796] Detected Next.js version: 14.2.28
+[15:44:30.800] Running "npm run build"
+[15:44:30.917] 
+[15:44:30.918] > design-system-roadmap@1.0.0 build
+[15:44:30.918] > next build
+[15:44:30.918] 
+[15:44:31.474] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[15:44:31.475] This information is used to shape Next.js' roadmap and prioritize features.
+[15:44:31.475] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[15:44:31.475] https://nextjs.org/telemetry
+[15:44:31.475] 
+[15:44:31.570]   ▲ Next.js 14.2.28
+[15:44:31.571] 
+[15:44:31.594]    Creating an optimized production build ...
+[15:44:45.155] Failed to compile.
+[15:44:45.156] 
+[15:44:45.156] ./src/styles/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./src/styles/globals.css
+[15:44:45.157] Error: It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package, so to continue using Tailwind CSS with PostCSS you'll need to install `@tailwindcss/postcss` and update your PostCSS configuration.
+[15:44:45.158]     at We (/vercel/path0/node_modules/tailwindcss/dist/lib.js:35:2121)
+[15:44:45.158]     at LazyResult.runOnRoot (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:329:16)
+[15:44:45.158]     at LazyResult.runAsync (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:258:26)
+[15:44:45.158]     at LazyResult.async (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:160:30)
+[15:44:45.158]     at LazyResult.then (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:404:17)
+[15:44:45.158] 
+[15:44:45.158] Import trace for requested module:
+[15:44:45.159] ./src/styles/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./src/styles/globals.css
+[15:44:45.159] ./src/styles/globals.css
+[15:44:45.159] 
+[15:44:45.159] ./src/styles/globals.css
+[15:44:45.159] Error: It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package, so to continue using Tailwind CSS with PostCSS you'll need to install `@tailwindcss/postcss` and update your PostCSS configuration.
+[15:44:45.159]     at We (/vercel/path0/node_modules/tailwindcss/dist/lib.js:35:2121)
+[15:44:45.159]     at LazyResult.runOnRoot (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:329:16)
+[15:44:45.159]     at LazyResult.runAsync (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:258:26)
+[15:44:45.159]     at LazyResult.async (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:160:30)
+[15:44:45.159]     at LazyResult.then (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:404:17)
+[15:44:45.160]     at tryRunOrWebpackError (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:312989)
+[15:44:45.160]     at __webpack_require_module__ (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:131165)
+[15:44:45.160]     at __nested_webpack_require_153728__ (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:130607)
+[15:44:45.160]     at /vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:131454
+[15:44:45.160]     at symbolIterator (/vercel/path0/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+[15:44:45.160]     at done (/vercel/path0/node_modules/next/dist/compiled/neo-async/async.js:1:14824)
+[15:44:45.160]     at Hook.eval [as callAsync] (eval at create (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:13:28858), <anonymous>:15:1)
+[15:44:45.160]     at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:13:26012)
+[15:44:45.161]     at /vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:130328
+[15:44:45.161]     at symbolIterator (/vercel/path0/node_modules/next/dist/compiled/neo-async/async.js:1:14402)
+[15:44:45.161] -- inner error --
+[15:44:45.161] Error: It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package, so to continue using Tailwind CSS with PostCSS you'll need to install `@tailwindcss/postcss` and update your PostCSS configuration.
+[15:44:45.161]     at We (/vercel/path0/node_modules/tailwindcss/dist/lib.js:35:2121)
+[15:44:45.161]     at LazyResult.runOnRoot (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:329:16)
+[15:44:45.161]     at LazyResult.runAsync (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:258:26)
+[15:44:45.161]     at LazyResult.async (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:160:30)
+[15:44:45.162]     at LazyResult.then (/vercel/path0/node_modules/next/node_modules/postcss/lib/lazy-result.js:404:17)
+[15:44:45.162]     at Object.<anonymous> (/vercel/path0/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!/vercel/path0/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!/vercel/path0/src/styles/globals.css:1:7)
+[15:44:45.162]     at /vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:922493
+[15:44:45.162]     at Hook.eval [as call] (eval at create (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:13:28636), <anonymous>:7:1)
+[15:44:45.162]     at Hook.CALL_DELEGATE [as _call] (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:13:25906)
+[15:44:45.162]     at /vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:131198
+[15:44:45.162]     at tryRunOrWebpackError (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:312943)
+[15:44:45.162]     at __webpack_require_module__ (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:131165)
+[15:44:45.163]     at __nested_webpack_require_153728__ (/vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:130607)
+[15:44:45.163]     at /vercel/path0/node_modules/next/dist/compiled/webpack/bundle5.js:28:131454
+[15:44:45.163]     at symbolIterator (/vercel/path0/node_modules/next/dist/compiled/neo-async/async.js:1:14444)
+[15:44:45.163] 
+[15:44:45.163] Generated code for /vercel/path0/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!/vercel/path0/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!/vercel/path0/src/styles/globals.css
+[15:44:45.163] 
+[15:44:45.163] Import trace for requested module:
+[15:44:45.163] ./src/styles/globals.css
+[15:44:45.163] 
+[15:44:45.171] 
+[15:44:45.178] > Build failed because of webpack errors
+[15:44:45.200] Error: Command "npm run build" exited with 1
+[15:44:45.419] 
+[15:44:48.686] Exiting build container" are we making progress?
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I see the problem! Vercel is **still** building from the old commit `a3893b7` instead of our latest commits. This suggests there's a deeper issue with Vercel's deployment configuration or webhook setup.
+
+Let me check our current repository status:
+
+---
+
+```bash
+git log --oneline -3
+```
+
+```
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap % git log --oneline -3
+98d1a07 (HEAD -> master, origin/master, origin/HEAD) docs: Document troubleshooting steps for Vercel deploym
+ent build errors
+3f43be5 docs: Add comment to PostCSS config to force deployment with Tailwind CSS v4 fix
+018f352 fix: Update PostCSS configuration to use the correct Tailwind CSS plugin
+stevenvillarino@Stevens-MacBook-Pro-2 learning-design-systems-roadmap %
+```
+
+---
+
+Our repository has the latest commits (including `98d1a07`), but Vercel is still cloning from `a3893b7`. This is definitely a Vercel deployment configuration issue. Let me check if there might be other PostCSS configuration files that could be interfering:
+
+---
+
+<details>
+            <summary>Grep search for "tailwindcss" • **6** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/postcss.config.js` | L3 | `'@tailwindcss/postcss': {},` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/tailwindcss/tailwind.config.js` | Lundefined | `/** @type {import('tailwindcss').Config} */` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/tailwindcss/tailwind.config.js` | L81 | `plugins: [require("@tailwindcss/typography")],` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package.json` | L11 | `"@tailwindcss/postcss": "^4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package.json` | L12 | `"@tailwindcss/typography": "^0.5.10",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package.json` | L23 | `"tailwindcss": "^4.1.7"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/tailwind.config.js` | Lundefined | `/** @type {import('tailwindcss').Config} */` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/tailwind.config.js` | L81 | `plugins: [require("@tailwindcss/typography")],` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L10 | `"@tailwindcss/postcss": "^4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L11 | `"@tailwindcss/typography": "^0.5.10",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L22 | `"tailwindcss": "^4.1.7"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L808 | `"node_modules/@tailwindcss/node": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L810 | `"resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L820 | `"tailwindcss": "4.1.7"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L823 | `"node_modules/@tailwindcss/oxide": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L825 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L837 | `"@tailwindcss/oxide-android-arm64": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L838 | `"@tailwindcss/oxide-darwin-arm64": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L839 | `"@tailwindcss/oxide-darwin-x64": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L840 | `"@tailwindcss/oxide-freebsd-x64": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L841 | `"@tailwindcss/oxide-linux-arm-gnueabihf": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L842 | `"@tailwindcss/oxide-linux-arm64-gnu": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L843 | `"@tailwindcss/oxide-linux-arm64-musl": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L844 | `"@tailwindcss/oxide-linux-x64-gnu": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L845 | `"@tailwindcss/oxide-linux-x64-musl": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L846 | `"@tailwindcss/oxide-wasm32-wasi": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L847 | `"@tailwindcss/oxide-win32-arm64-msvc": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L848 | `"@tailwindcss/oxide-win32-x64-msvc": "4.1.7"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L851 | `"node_modules/@tailwindcss/oxide-android-arm64": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L853 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-android-arm64/-/oxide-android-arm64-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L867 | `"node_modules/@tailwindcss/oxide-darwin-arm64": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L869 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L883 | `"node_modules/@tailwindcss/oxide-darwin-x64": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L885 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-x64/-/oxide-darwin-x64-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L899 | `"node_modules/@tailwindcss/oxide-freebsd-x64": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L901 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-freebsd-x64/-/oxide-freebsd-x64-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L915 | `"node_modules/@tailwindcss/oxide-linux-arm-gnueabihf": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L917 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm-gnueabihf/-/oxide-linux-arm-gnueabihf-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L931 | `"node_modules/@tailwindcss/oxide-linux-arm64-gnu": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L933 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm64-gnu/-/oxide-linux-arm64-gnu-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L947 | `"node_modules/@tailwindcss/oxide-linux-arm64-musl": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L949 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-arm64-musl/-/oxide-linux-arm64-musl-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L963 | `"node_modules/@tailwindcss/oxide-linux-x64-gnu": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L965 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-gnu/-/oxide-linux-x64-gnu-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L979 | `"node_modules/@tailwindcss/oxide-linux-x64-musl": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L981 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-musl/-/oxide-linux-x64-musl-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L995 | `"node_modules/@tailwindcss/oxide-wasm32-wasi": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L997 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-wasm32-wasi/-/oxide-wasm32-wasi-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1024 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/core": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1034 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/runtime": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1043 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@emnapi/wasi-threads": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1052 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@napi-rs/wasm-runtime": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1063 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/@tybys/wasm-util": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1072 | `"node_modules/@tailwindcss/oxide-wasm32-wasi/node_modules/tslib": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1078 | `"node_modules/@tailwindcss/oxide-win32-arm64-msvc": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1080 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-win32-arm64-msvc/-/oxide-win32-arm64-msvc-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1094 | `"node_modules/@tailwindcss/oxide-win32-x64-msvc": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1096 | `"resolved": "https://registry.npmjs.org/@tailwindcss/oxide-win32-x64-msvc/-/oxide-win32-x64-msvc-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1110 | `"node_modules/@tailwindcss/postcss": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1112 | `"resolved": "https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1117 | `"@tailwindcss/node": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1118 | `"@tailwindcss/oxide": "4.1.7",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1120 | `"tailwindcss": "4.1.7"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1123 | `"node_modules/@tailwindcss/typography": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1125 | `"resolved": "https://registry.npmjs.org/@tailwindcss/typography/-/typography-0.5.16.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L1135 | `"tailwindcss": ">=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1"` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L3358 | `"node_modules/tailwindcss": {` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/package-lock.json` | L3360 | `"resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.1.7.tgz",` |
+| `file:///Users/stevenvillarino/Projects/stevenvillarino/learning-design-systems-roadmap/postcss.config.js` | L3 | `'@tailwindcss/postcss': {},` |
+
+</details>
+
+---
+
+Wait! I notice something in the directory structure that might be the issue. Let me check if there's a conflicting PostCSS configuration in the `tailwindcss/` directory:
+
+---
+
+<details>
+            <summary>Listed directory tailwindcss • **1** results</summary>
+        
+| Name |
+|-------|
+| 📄 `tailwind.config.js` |
+
+</details>
+
+---
+
+Read file: tailwindcss/tailwind.config.js
+
+---
+
+The issue isn't in the Tailwind configs. The
+
+---
+

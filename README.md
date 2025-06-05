@@ -1,5 +1,7 @@
 # Learning Design Systems Roadmap
 
+<!-- Build timestamp: 2025-06-05 15:45 PST - Forcing Vercel deployment with PostCSS v4 fix -->
+
 This project is a roadmap and learning resource for mastering design systems. It includes documentation, a web application, and interactive components to help users understand and track their progress in learning design systems.
 
 ## Project Structure
