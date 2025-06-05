@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getNodeById, RoadmapNode } from '@/data/roadmap';
+import { getNodeById, RoadmapNode } from '@/data/roadmap-old';
 
 interface LessonViewProps {
   nodeId: string;

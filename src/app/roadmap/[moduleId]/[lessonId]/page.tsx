@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { designSystemRoadmap } from '@/data/roadmapData';
 
 interface LessonPageProps {
-  params: {
+  params: Promise<{
     moduleId: string;
     lessonId: string;
-  };
+  }>;
 }
 
-export default function LessonPage({ params }: LessonPageProps) {
-  const { moduleId, lessonId } = params;
+export default async function LessonPage({ params }: LessonPageProps) {
+  const { moduleId, lessonId } = await params;
   
   // Find the module and lesson
   const module = designSystemRoadmap.find(m => m.id === moduleId);
