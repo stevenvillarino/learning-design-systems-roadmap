@@ -11,7 +11,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   // Temporarily disable auth for development
-  const session = null;
+  const session: any = null;
   const isPending = false;
   // const { data: session, isPending } = authClient.useSession();
 
