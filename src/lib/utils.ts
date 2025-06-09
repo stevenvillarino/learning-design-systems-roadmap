@@ -1,4 +1,10 @@
 // This file contains utility functions for the roadmap application
+import clsx from 'clsx';
+
+// Class name utility function (similar to clsx but with additional TypeScript support)
+export function cn(...inputs: (string | undefined | null | boolean | { [key: string]: boolean })[]): string {
+  return clsx(inputs);
+}
 
 // Format date for display
 export function formatDate(dateString: string) {
