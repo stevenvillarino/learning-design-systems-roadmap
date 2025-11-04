@@ -7,6 +7,7 @@ node_modules/
 # Build output
 .next/
 dist/
+tsconfig.tsbuildinfo
 
 # OS files
 .DS_Store
