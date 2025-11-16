@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "generate:content": "tsx scripts/generateContent.ts",
-    "generate:batch": "tsx scripts/batchGenerate.ts"
+    "generate:batch": "tsx scripts/batchGenerate.ts",
+    "update:content-paths": "tsx scripts/updateContentPaths.ts",
+    "generate:all": "bash scripts/generate-all.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.69.0",
