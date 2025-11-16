@@ -6,14 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:content": "tsx scripts/generateContent.ts",
+    "generate:batch": "tsx scripts/batchGenerate.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
+    "@mendable/firecrawl-js": "^4.5.0",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.16",
     "better-auth": "^1.2.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dotenv": "^17.2.3",
+    "exa-js": "^2.0.3",
     "lucide-react": "^0.294.0",
     "next": "^15.3.3",
     "postcss": "^8.4.32",
@@ -28,6 +34,7 @@
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.17",
+    "tsx": "^4.20.6",
     "typescript": "^5.3.3"
   }
 }
