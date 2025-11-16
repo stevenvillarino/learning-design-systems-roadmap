@@ -3,10 +3,11 @@
  *
  * This script automates lesson content generation using:
  * 1. Exa - Find authoritative sources on topics
- * 2. Firecrawl - Extract clean markdown from sources
+ * 2. Firecrawl - Extract clean markdown from sources (optional)
  * 3. Claude - Synthesize sources into educational content
  */
 
+import 'dotenv/config';
 import Anthropic from '@anthropic-ai/sdk';
 import Exa from 'exa-js';
 import FirecrawlApp from '@mendable/firecrawl-js';
@@ -40,11 +41,8 @@ function getExaClient(): any {
   return exa;
 }
 
-function getFirecrawlClient(): any {
-  if (!firecrawl) {
-    if (!process.env.FIRECRAWL_API_KEY) {
-      throw new Error('FIRECRAWL_API_KEY environment variable is required');
-    }
+function getFirecrawlClient(): any | null {
+  if (!firecrawl && process.env.FIRECRAWL_API_KEY) {
     firecrawl = new FirecrawlApp({
       apiKey: process.env.FIRECRAWL_API_KEY,
     });
@@ -89,20 +87,26 @@ async function findSources(query: string, numResults: number = 5): Promise<any[]
 }
 
 /**
- * Step 2: Extract clean content using Firecrawl
+ * Step 2: Extract clean content using Firecrawl (optional)
+ * Falls back to Exa's built-in text extraction if Firecrawl not available
  */
 async function extractContent(url: string): Promise<string> {
   console.log(`📄 Extracting content from: ${url}`);
 
-  try {
-    const firecrawlClient = getFirecrawlClient();
-    const result: any = await firecrawlClient.scrapeUrl(url, {
-      formats: ['markdown'],
-    });
+  const firecrawlClient = getFirecrawlClient();
 
-    return result.markdown || '';
-  } catch (error) {
-    console.error(`❌ Failed to extract from ${url}:`, error);
+  if (firecrawlClient) {
+    try {
+      const result: any = await firecrawlClient.scrapeUrl(url, {
+        formats: ['markdown'],
+      });
+      return result.markdown || '';
+    } catch (error) {
+      console.error(`⚠️ Firecrawl failed for ${url}, will use Exa text:`, error);
+      return '';
+    }
+  } else {
+    console.log(`ℹ️ Firecrawl not configured, using Exa text extraction`);
     return '';
   }
 }
@@ -208,8 +212,10 @@ export async function generateLessonContent(
     const exaResults = await findSources(lessonConfig.searchQuery);
 
     // Step 2: Extract content from top sources
+    // Use Exa's built-in text extraction (already included in search results)
     const sources: Source[] = [];
     for (const result of exaResults.slice(0, 5)) {
+      // Exa already provides extracted text in the search results
       const content = result.text || '';
       sources.push({
         title: result.title,
@@ -219,6 +225,8 @@ export async function generateLessonContent(
         publishedDate: result.publishedDate,
       });
     }
+
+    console.log(`✅ Extracted content from ${sources.length} sources using Exa`);
 
     // Step 3: Synthesize into lesson
     const markdown = await synthesizeLesson(lessonConfig, sources);
