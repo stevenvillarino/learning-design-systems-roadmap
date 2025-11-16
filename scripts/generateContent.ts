@@ -13,16 +13,44 @@ import FirecrawlApp from '@mendable/firecrawl-js';
 import fs from 'fs/promises';
 import path from 'path';
 
-// Initialize APIs
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Lazy initialization of API clients to avoid build-time errors
+let anthropic: Anthropic | null = null;
+let exa: any = null;
+let firecrawl: any = null;
 
-const exa: any = new Exa(process.env.EXA_API_KEY);
+function getAnthropicClient(): Anthropic {
+  if (!anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is required');
+    }
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropic;
+}
 
-const firecrawl: any = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY,
-});
+function getExaClient(): any {
+  if (!exa) {
+    if (!process.env.EXA_API_KEY) {
+      throw new Error('EXA_API_KEY environment variable is required');
+    }
+    exa = new Exa(process.env.EXA_API_KEY);
+  }
+  return exa;
+}
+
+function getFirecrawlClient(): any {
+  if (!firecrawl) {
+    if (!process.env.FIRECRAWL_API_KEY) {
+      throw new Error('FIRECRAWL_API_KEY environment variable is required');
+    }
+    firecrawl = new FirecrawlApp({
+      apiKey: process.env.FIRECRAWL_API_KEY,
+    });
+  }
+  return firecrawl;
+}
 
 interface LessonConfig {
   id: string;
@@ -47,7 +75,8 @@ interface Source {
 async function findSources(query: string, numResults: number = 5): Promise<any[]> {
   console.log(`🔍 Searching for sources: "${query}"`);
 
-  const result: any = await exa.searchAndContents(query, {
+  const exaClient = getExaClient();
+  const result: any = await exaClient.searchAndContents(query, {
     type: 'neural',
     useAutoprompt: true,
     numResults,
@@ -66,7 +95,8 @@ async function extractContent(url: string): Promise<string> {
   console.log(`📄 Extracting content from: ${url}`);
 
   try {
-    const result: any = await firecrawl.scrapeUrl(url, {
+    const firecrawlClient = getFirecrawlClient();
+    const result: any = await firecrawlClient.scrapeUrl(url, {
       formats: ['markdown'],
     });
 
@@ -136,7 +166,8 @@ STRUCTURE:
 OUTPUT:
 Only return the markdown content. Do not include meta-commentary.`;
 
-  const message = await anthropic.messages.create({
+  const anthropicClient = getAnthropicClient();
+  const message = await anthropicClient.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4000,
     messages: [{ role: 'user', content: prompt }],
