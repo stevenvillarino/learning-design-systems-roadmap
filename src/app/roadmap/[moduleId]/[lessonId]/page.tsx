@@ -3,17 +3,20 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  ArrowLeftIcon, 
-  CheckCircleIcon, 
-  CircleIcon, 
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  CircleIcon,
   BookOpenIcon,
   ClockIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ExternalLinkIcon,
+  LinkIcon
 } from 'lucide-react';
 import { designSystemRoadmap } from '@/data/roadmapData';
 import { useProgress } from '@/hooks/useProgress';
 import { cn } from '@/lib/utils';
+import { ContentMetadata } from '@/components/roadmap_v2/ContentMetadata';
 
 export default function LessonPage() {
   const params = useParams();
@@ -175,14 +178,18 @@ export default function LessonPage() {
                 )}
                 
                 <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <ClockIcon className="w-4 h-4" />
-                    <span>~15 min read</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <BookOpenIcon className="w-4 h-4" />
-                    <span>Beginner Level</span>
-                  </div>
+                  {lesson.estimatedTime && (
+                    <div className="flex items-center gap-1">
+                      <ClockIcon className="w-4 h-4" />
+                      <span>{lesson.estimatedTime} min read</span>
+                    </div>
+                  )}
+                  {lesson.difficulty && (
+                    <div className="flex items-center gap-1">
+                      <BookOpenIcon className="w-4 h-4" />
+                      <span className="capitalize">{lesson.difficulty} Level</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -203,9 +210,68 @@ export default function LessonPage() {
                 </p>
               </div>
 
+              {/* Learning Resources */}
+              {lesson.resources && lesson.resources.length > 0 && (
+                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5 text-blue-600" />
+                    Learning Resources ({lesson.resources.length})
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Curated resources to help you learn about {lesson.title.toLowerCase()}.
+                  </p>
+                  <div className="space-y-3">
+                    {lesson.resources.map((resource, index) => (
+                      <a
+                        key={index}
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/30 transition-colors group"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                                {resource.title}
+                              </h4>
+                              <ExternalLinkIcon className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
+                            </div>
+                            {resource.description && (
+                              <p className="text-sm text-gray-600 mb-2">{resource.description}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 items-center text-xs">
+                              <span className="capitalize bg-gray-100 px-2 py-1 rounded text-gray-700">
+                                {resource.type}
+                              </span>
+                              {resource.difficulty && (
+                                <span className={cn(
+                                  "px-2 py-1 rounded capitalize",
+                                  resource.difficulty === 'beginner' && "bg-green-100 text-green-700",
+                                  resource.difficulty === 'intermediate' && "bg-yellow-100 text-yellow-700",
+                                  resource.difficulty === 'advanced' && "bg-red-100 text-red-700"
+                                )}>
+                                  {resource.difficulty}
+                                </span>
+                              )}
+                              {resource.duration && (
+                                <span className="text-gray-500 flex items-center gap-1">
+                                  <ClockIcon className="w-3 h-3" />
+                                  {resource.duration}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Sub-lessons */}
               {lesson.subLessons && lesson.subLessons.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-gray-50 rounded-lg p-6 mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Sub-topics Covered:</h3>
                   <ul className="space-y-2">
                     {lesson.subLessons.map((subLesson, index) => (
@@ -216,6 +282,11 @@ export default function LessonPage() {
                     ))}
                   </ul>
                 </div>
+              )}
+
+              {/* Content Metadata & Sources */}
+              {lesson.metadata && (
+                <ContentMetadata metadata={lesson.metadata} />
               )}
             </div>
           </div>
