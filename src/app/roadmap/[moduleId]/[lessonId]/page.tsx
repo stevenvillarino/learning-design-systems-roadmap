@@ -17,6 +17,7 @@ import { designSystemRoadmap } from '@/data/roadmapData';
 import { useProgress } from '@/hooks/useProgress';
 import { cn } from '@/lib/utils';
 import { ContentMetadata } from '@/components/roadmap_v2/ContentMetadata';
+import { LessonContent } from '@/components/lesson/LessonContent';
 
 export default function LessonPage() {
   const params = useParams();
@@ -197,22 +198,30 @@ export default function LessonPage() {
 
           {/* Lesson Content */}
           <div className="p-8">
-            <div className="prose prose-lg max-w-none">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">📚 Coming Soon</h3>
-                <p className="text-blue-800 mb-4">
-                  Detailed lesson content for "{lesson.title}" is currently being developed. 
-                  This will include comprehensive explanations, examples, and practical exercises.
-                </p>
-                <p className="text-blue-700 text-sm">
-                  For now, you can mark this lesson as complete to track your progress 
-                  and continue with the learning path.
-                </p>
+            {/* Main Lesson Content */}
+            {lesson.contentPath ? (
+              <div className="mb-8">
+                <LessonContent contentPath={lesson.contentPath} />
               </div>
+            ) : (
+              <div className="prose prose-lg max-w-none mb-8">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-2">📚 Coming Soon</h3>
+                  <p className="text-blue-800 mb-4">
+                    Detailed lesson content for "{lesson.title}" is currently being developed.
+                    This will include comprehensive explanations, examples, and practical exercises.
+                  </p>
+                  <p className="text-blue-700 text-sm">
+                    For now, you can mark this lesson as complete to track your progress
+                    and continue with the learning path.
+                  </p>
+                </div>
+              </div>
+            )}
 
-              {/* Learning Resources */}
-              {lesson.resources && lesson.resources.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+            {/* Learning Resources */}
+            {lesson.resources && lesson.resources.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <LinkIcon className="w-5 h-5 text-blue-600" />
                     Learning Resources ({lesson.resources.length})
@@ -267,10 +276,10 @@ export default function LessonPage() {
                     ))}
                   </div>
                 </div>
-              )}
+            )}
 
-              {/* Sub-lessons */}
-              {lesson.subLessons && lesson.subLessons.length > 0 && (
+            {/* Sub-lessons */}
+            {lesson.subLessons && lesson.subLessons.length > 0 && (
                 <div className="bg-gray-50 rounded-lg p-6 mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Sub-topics Covered:</h3>
                   <ul className="space-y-2">
@@ -282,13 +291,12 @@ export default function LessonPage() {
                     ))}
                   </ul>
                 </div>
-              )}
+            )}
 
-              {/* Content Metadata & Sources */}
-              {lesson.metadata && (
-                <ContentMetadata metadata={lesson.metadata} />
-              )}
-            </div>
+            {/* Content Metadata & Sources */}
+            {lesson.metadata && (
+              <ContentMetadata metadata={lesson.metadata} />
+            )}
           </div>
         </div>
 
