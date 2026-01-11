@@ -1,6 +1,6 @@
 # 🎨 Design System Learning Roadmap
 
-> **A modern, interactive platform for mastering design systems with comprehensive progress tracking and beautiful UI.**
+> **A platform for onboarding and educating internal teams on our Design System fundamentals, contribution workflows, and component usage.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue)](https://www.typescriptlang.org/)
